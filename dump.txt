@@ -1,0 +1,117 @@
+local enhancements = {
+  G.P_CENTERS.m_bonus,
+  G.P_CENTERS.m_mult,
+  G.P_CENTERS.m_wild,
+  G.P_CENTERS.m_glass,
+  G.P_CENTERS.m_steel,
+  G.P_CENTERS.m_stone,
+  G.P_CENTERS.m_gold,
+  G.P_CENTERS.m_lucky
+}
+
+local seals = {
+  "Gold",
+  "Red",
+  "Blue",
+  "Purple"
+}
+
+
+SMODS.Atlas {
+  key = "dogdecks",
+  path = "dogdecks.png",
+  px = 71,
+  py = 95
+}
+
+SMODS.Joker {
+  key = 'lucky_seven',
+  loc_txt = {
+    name = 'Lucky Number 7',
+    text = {
+      "{C:mult}+#1# {} Mult"
+    }
+  },
+  config = { },
+  rarity = 1,
+  atlas = 'dogdecks',
+  pos = { x = 0, y = 0 }, -- TODO: art
+  cost = 2,
+  discovered = true,
+  blueprint_compat = false,
+  calculate = function(self, context)        --define calculate functions here
+    if context.individual and context.cardarea == G.play and not context.blueprint then
+        if context.other_card:get_id() == 11 or context.other_card:get_id() == 13 or next(find_joker("Pareidolia")) then
+            local suit_prefix = SMODS.Suits[context.other_card.base.suit].card_key .. '_'
+            context.other_card:set_base(G.P_CARDS[suit_prefix .. 'Q'])
+            return {
+                message = localize { "Wokified" }
+            }
+        end
+    end
+end
+}
+
+
+SMODS.Joker {
+  key = 'myjoker',
+  loc_txt = {
+    name = 'My Joker',
+    text = {
+      "{C:mult}+#1# {} Mult"
+    }
+  },
+  config = { extra = { mult = 666 } },
+  loc_vars = function(self, info_queue, card)
+    return { vars = { card.ability.extra.mult } }
+  end,
+  rarity = 1,
+  atlas = 'dogdecks',
+  pos = { x = 0, y = 0 }, -- TODO: art
+  cost = 2,
+  discovered = true,
+  calculate = function(self, card, context)
+    if context.joker_main then
+      return {
+        mult_mod = card.ability.extra.mult,
+        message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
+      }
+    end
+  end
+}
+
+
+
+
+SMODS.Joker {
+  key = 'charm',
+  loc_txt = {
+    name = 'Charming Joker',
+    text = {
+     "Retrigger each scorred {C:attention}3{} {C:attention}retrigger #1#{} times",               --description text.	
+            "{C:inactive}(hello){}"    
+    }
+  },
+  config = { extra = { rep = 3 } },
+  loc_vars = function(self, info_queue, card)
+    return { vars = { card.ability.extra.rep } }
+  end,
+  rarity = 1,
+  atlas = 'dogdecks',
+  pos = { x = 0, y = 0 }, -- TODO: art
+  cost = 2,
+  discovered = true,
+  calculate = function(self, context)             --define calculate functions here
+    if context.repetition then
+        if context.cardarea == G.play then
+           if context.other_card:get_id() == 3 then
+               return {
+                   message = 'w00t',
+                   repetitions = self.ability.extra.rep,
+                   card = self
+               }
+           end
+       end
+    end
+  end,
+}
