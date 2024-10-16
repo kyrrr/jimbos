@@ -115,3 +115,96 @@ SMODS.Joker {
     end
   end,
 }
+local NAME = "My Deck"
+
+local back_apply_to_run_ref = Back.apply_to_run
+function Back:apply_to_run()
+    back_apply_to_run_ref(self)
+
+    if self.effect.config.foo_jokers then
+      delay(0.4)
+      G.E_MANAGER:add_event(Event({
+          func = function()
+              G.E_MANAGER:add_event(Event({
+                  func = function()
+                      for k, v in ipairs(self.effect.config.foo_jokers) do
+                         local card = create_card('Joker', G.jokers, nil, nil, nil, nil, v, 'deck')
+                         card:add_to_deck()
+                         G.jokers:emplace(card)
+                      end
+                  return true
+                  end
+              }))
+          return true
+          end
+      }))
+  end
+end
+
+
+
+
+
+
+
+-- Animate card
+        --if context.first_hand_drawn then
+        --    local eval = function()
+        --        return G.GAME.current_round.hands_played == 0
+        --    end
+        --    juice_card_until(self, eval, true)
+        --end
+
+        --if context.before 
+
+        --if context.other_card:get_id() == 7 then
+          -- Add chips if suit is Diamonds or Clubs
+       --   chips = self.ability.extra.chips
+      --  end
+
+
+        -- If first hand is single card, upgrade
+       -- if G.GAME.current_round.hands_played == 0 then
+            if context.before then
+               -- if #context.full_hand == self.ability.extra.req then
+                    for _, card in ipairs(context.full_hand) do
+                        -- Animate card
+                        G.E_MANAGER:add_event(Event({
+                            delay = 0.5,
+                            func = function()
+                                card:juice_up(0.3, 0.5)
+                                -- Add seal and edition
+                                --if card.ability.seal == nil then
+                               --     card:set_seal(pseudorandom_element(seals, pseudoseed("commander")), nil, true)
+                               -- end
+                               -- if card.edition == nil then
+                              --      local edition = poll_edition("commander", nil, true, true)
+                              --      card:set_edition(edition)
+                              --  end
+                                return true
+                            end
+                        }))
+
+                        -- Add enhancement, outside of animate because this has a delay for some reason
+                        if card.id == 7 then
+                            card:set_ability(pseudorandom_element(enhancements, pseudoseed("commander")), nil, true)
+                        end
+
+                        -- Return message
+                        card_eval_status_text(self, "extra", nil, nil, nil, {
+                            message = localize("k_upgrade_ex")
+                        })
+                    end
+                end
+            --end
+        --end
+    end
+
+
+
+
+
+
+
+
+thread id calculation triggers and context: 1247703015222149120
