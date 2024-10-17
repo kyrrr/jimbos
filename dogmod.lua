@@ -30,7 +30,11 @@ function printObj(obj, hierarchyLevel)
       if (type(v) == "table") then
         printObj(v, hierarchyLevel+1)
       else
+        print("---")
+        print(k)
+        print("=>")
         print(v)
+        print("---")
       end           
     end
   else
@@ -60,8 +64,8 @@ local config = {
   dogDeck = true,
   perfectPrecisionDeck = false, --true, -- Do not enable without sniperJoker
   -- Tarot Cards
-  aceOfPentaclesTarot = true,
-  pageOfPentaclesTarot = true,
+  aceOfPentaclesTarot = false,
+  pageOfPentaclesTarot = false,
   kingOfCupsTarot = false, -- In Development, do not enable
   commonTarot = false,     -- In Development, do not enable
   uncommonTarot = false,   -- In Development, do not enable
@@ -72,8 +76,9 @@ local config = {
   cardChipsTarot = false,  -- In Development, do not enable
   cardMultTarot = false,   -- In Development, do not enable
   -- Spectral Cards
-  incenseSpectral = true,
+  incenseSpectral = false,
   -- Jokers
+  --[[
   primeTimeJoker = true,
   straightNateJoker = true,
   fishermanJoker = true,
@@ -134,7 +139,11 @@ local config = {
   psychicJoker = true,
   cheatJoker = true,
   plusOneJoker = true,
+  ]]--
   luckySevenJoker = true,
+  salaryManJoker = true,
+  fixedOddsJoker = true,
+  committedJoker = true,
 }
 
 -- Helper functions
@@ -855,7 +864,9 @@ local decks = {
     name = "Dock Deck",
     config = {
         mmc_foobar = true,
-        discards = 666,
+        discards = 100,
+        -- skull tag - destroy card when scored
+        -- canio interaction?
     },
     sprite = {
         x = 5,
@@ -1013,14 +1024,22 @@ function Back.apply_to_run(arg_56_0)
             -- Add whatever
             for i = #G.playing_cards, 1, -1 do
                 -- Remove non prime cards
-                --if not is_rank(G.playing_cards[i], 7) then
-                if G.playing_cards[i]:get_id() > 7 then
-                    G.playing_cards[i]:start_dissolve(nil, true)
+                if not is_rank(G.playing_cards[i], 7) then
+                  
+                  --G.playing_cards[i]:set_ability(G.P_CENTERS.m_lucky)
+                --if G.playing_cards[i]:get_id() > 7 then
+                  G.playing_cards[i]:start_dissolve(nil, true)
                 end
             end
-            add_joker("j_mmc_lucky7", "negative", true, false)
+            add_joker("j_mmc_lucky7")
+            --add_joker("j_mmc_salary_man")
+            add_joker("j_mmc_fixed_odds")
+            add_joker("j_midas_mask")
+            add_joker("j_ticket")
+            --add_joker("j_mmc_committed")
+           -- add_joker("j_hack", "negative", true, false)
             --add_joker("j_midas_mask", "negative", true, false)
-            G.GAME.starting_deck_size = 36
+            G.GAME.starting_deck_size = 4
             return true
         end
     }))
@@ -1041,6 +1060,12 @@ function SMODS.INIT.MikasModCollection()
   G.localization.misc.dictionary.k_mmc_luck = "+ Luck!"
   G.localization.misc.dictionary.k_mmc_destroy = "Destroy!"
   G.localization.misc.dictionary.k_mmc_lucky = "Lucky!"
+  G.localization.misc.dictionary.k_mmc_payday = "Payday!"
+  G.localization.misc.dictionary.k_mmc_raise = "Raise!"
+  G.localization.misc.dictionary.k_mmc_odds_up = "More likely!"
+  G.localization.misc.dictionary.k_mmc_committed = "Committed!"
+
+
 
 
   init_localization()
@@ -3668,19 +3693,75 @@ function SMODS.INIT.MikasModCollection()
 
 
   if config.luckySevenJoker then
-    -- Create Joker,
-    local lucky7 = {
+      -- Create Joker,
+      local lucky7 = {
+          loc = {
+              name = "Lucky 7",
+              text = {
+                "All played {C:attention}7s{}",
+                "become {C:attention}Lucky{} cards",
+                "when scored"
+              }
+          },
+          ability_name = "Lucky 7",
+          slug = "mmc_lucky7",
+          ability = {},
+          rarity = 3,
+          cost = 9,
+          unlocked = true,
+          discovered = true,
+          blueprint_compat = false,
+          eternal_compat = true
+      }
+
+      -- Initialize Joker
+      init_joker(lucky7)
+
+      -- Set local variables
+      function SMODS.Jokers.j_mmc_lucky7.loc_def(card)
+          return {}
+      end
+
+      -- Calculate Lucky 7 joker
+      SMODS.Jokers.j_mmc_lucky7.calculate = function(self, context)
+        if context.before and context.cardarea == G.jokers then -- TODO: must know more about lifecycle
+          local scoredCards = {} -- store the cards that should be upgraded
+        
+          for _, scoringCard in ipairs(context.scoring_hand) do
+            if scoringCard:get_id() == 7 then -- if the card is a seven, save it for later
+              table.insert(scoredCards, scoringCard)
+            end
+          end
+
+          if #scoredCards > 0 then -- do we have any scoring cards?
+            for _, toBecomeLucky in ipairs(scoredCards) do
+              toBecomeLucky:juice_up(0.5, 0.5) -- jiggle. What's the unit?
+              toBecomeLucky:set_ability(G.P_CENTERS.m_lucky) -- make it lucky
+            end
+            card_eval_status_text(self, "extra", nil, nil, nil, { -- pops after the hand is removed if in the above event
+              message = localize("k_mmc_lucky") -- "Lucky!"
+            })
+          end -- end length check    
+        end -- end if context
+    end -- end calculate  
+end -- end config check
+
+
+if config.salaryManJoker then
+  -- Create Joker,
+    local salary_man = {
         loc = {
-            name = "Lucky 7",
+            name = "Salary Man",
             text = {
-              "All played {C:attention}7s{} cards",
-              "become {C:attention}Lucky{} cards",
-              "when scored"
+              "Gain {C:attention}$#1#{} after",
+              "{C:attention}#2#{} hands played.",
+              "Increases by {C:attention}$#3#{} every payout.",
+              "({C:attention}#4#{} remaining)"
             }
         },
-        ability_name = "Lucky 7",
-        slug = "mmc_lucky7",
-        ability = { extra = { req = 1, foo = 0, triggered = false } },
+        ability_name = "Salary Man",
+        slug = "mmc_salary_man",
+        ability = { extra = { payout = 100, raise = 20, start_req = 28, remaining_req = 2 }},
         rarity = 3,
         cost = 9,
         unlocked = true,
@@ -3690,43 +3771,153 @@ function SMODS.INIT.MikasModCollection()
     }
 
     -- Initialize Joker
-    init_joker(lucky7)
+    init_joker(salary_man)
 
     -- Set local variables
-    function SMODS.Jokers.j_mmc_lucky7.loc_def(card)
-        return { card.ability.extra.req }
+    function SMODS.Jokers.j_mmc_salary_man.loc_def(card)
+        return {card.ability.extra.payout, card.ability.extra.start_req, card.ability.extra.raise, card.ability.extra.remaining_req}
     end
 
-    -- Calculate
-    SMODS.Jokers.j_mmc_lucky7.calculate = function(self, context)
-      if context.before then
-        local scoredCards = {} -- store the cards that should be upgraded
-      
-        for _, scoringCard in ipairs(context.scoring_hand) do
-          if scoringCard:get_id() == 7 then -- if the card is a seven, save it for later
-            table.insert(scoredCards, scoringCard)
-          end
-        end
-
-
-        if tableLength(scoredCards) > 0 then -- do we have any scoring cards?
-          G.E_MANAGER:add_event(Event({ -- delay the upgrade a bit?
-            delay = 0.2, -- what's the unit?
-            func = function()
-                for _, toBecomeLucky in ipairs(scoredCards) do
-                  toBecomeLucky:juice_up(0.5, 0.5) -- jiggle. What's the unit?
-                  toBecomeLucky:set_ability(G.P_CENTERS.m_lucky) -- make it lucky
-                end
-                return true
-            end
-          }))
-          card_eval_status_text(self, "extra", nil, nil, nil, { -- pops after the hand is removed if in the above event
-            message = localize("k_mmc_lucky") -- "Lucky!"
+    -- Calculate salary man
+    SMODS.Jokers.j_mmc_salary_man.calculate = function(self, context)
+      if context.before and not context.repetition then -- TODO: should count even if hand doesn't score
+        self.ability.extra.remaining_req = self.ability.extra.remaining_req - 1 -- count down
+        if (self.ability.extra.remaining_req == 0) then -- payday!
+          ease_dollars(self.ability.extra.payout) -- get that money
+          card_eval_status_text(self, "extra", nil, nil, nil, {
+              message = localize("k_mmc_payday")
           })
-        end -- end length check    
+          card_eval_status_text(self, "extra", nil, nil, nil, {
+            message = localize("k_mmc_raise")
+        })
+          self.ability.extra.payout = self.ability.extra.payout + self.ability.extra.raise -- you get a raise!
+          self.ability.extra.remaining_req = self.ability.extra.start_req -- reset counter
+        end
       end -- end if context
   end -- end calculate  
 end -- end config check
+
+
+
+if config.fixedOddsJoker then
+  -- Create Joker,
+    local fixed_odds = {
+        loc = {
+            name = "Fixed Odds",
+            text = { --G.GAME.probabilities.normal
+              "If all scored cards",
+              "are {C:attention}Lucky{} cards,",
+              "double the chance of each triggering",
+            }
+        },
+        ability_name = "Fixed Odds",
+        slug = "mmc_fixed_odds",
+        ability = { extra = { increaseOddsTimes = 2, triggered = false }},
+        rarity = 3,
+        cost = 9,
+        unlocked = true,
+        discovered = true,
+        blueprint_compat = false,
+        eternal_compat = true
+    }
+
+    -- Initialize Joker
+    init_joker(fixed_odds)
+
+    -- Set local variables
+    function SMODS.Jokers.j_mmc_fixed_odds.loc_def(card)
+        return {card.ability.extra.increaseOddsTimes}
+    end
+
+    -- Calculate fixed odds
+    SMODS.Jokers.j_mmc_fixed_odds.calculate = function(self, context)
+      if context.individual and context.cardarea == G.play then
+        G.GAME.probabilities.normal = 15
+        print("Hello fixed odds")
+        local allAreLucky = true
+
+        for _, scoringCard in ipairs(context.scoring_hand) do
+           print(scoringCard.ability.name)
+           if scoringCard.ability.name ~= 'Lucky Card' then
+              allAreLucky = false
+           end
+        end
+
+        if allAreLucky then
+          self.ability.extra.triggered = true
+          card_eval_status_text(self, "extra", nil, nil, nil, {
+            message = localize("k_mmc_odds_up")
+          })
+
+          for k, v in pairs(G.GAME.probabilities) do -- this is what oops all sixes does
+            G.GAME.probabilities[k] = v*self.ability.extra.increaseOddsTimes
+          end
+          allAreLucky = false
+        end -- end all are lucky
+      elseif context.after and self.ability.extra.triggered then -- clean up after trigger to not inflate all probabilities forever
+        for k, v in pairs(G.GAME.probabilities) do -- reset probabilities
+          G.GAME.probabilities[k] = v / self.ability.extra.increaseOddsTimes
+          print(G.GAME.probabilities[k])
+        end
+        self.ability.extra.triggered = false -- reset state
+      end -- end if context 
+  end -- end calculate  
+end -- end config check
+
+if config.committedJoker then
+  -- Create Joker,
+    local committed = {
+        loc = {
+            name = "Committed Joker",
+            text = { --G.GAME.probabilities.normal
+              "Retriggers all scored cards",
+              "if played hand is your {C:attention}most played{} hand",
+            }
+        },
+        ability_name = "Committed",
+        slug = "mmc_committed",
+        ability = { extra = { retriggers = 1 }},
+        rarity = 3,
+        cost = 9,
+        unlocked = true,
+        discovered = true,
+        blueprint_compat = true,
+        eternal_compat = true
+    }
+
+    -- Initialize Joker
+    init_joker(committed)
+
+    -- Set local variables
+    function SMODS.Jokers.j_mmc_committed.loc_def(card)
+        return {card.ability.extra.increaseOddsTimes}
+    end
+
+    -- Calculate committed joker
+    SMODS.Jokers.j_mmc_committed.calculate = function(self, context, card)
+      if context.cardarea == G.play then
+        local handPlayedName = context.scoring_name -- name of the currently played hand
+        local numPlayedOfCurrentHandType = (G.GAME.hands[handPlayedName].played or 0) -- how many of the current hand have we played
+        local isHighest = true -- assume the currently played hand is the highest
+        for name, type in pairs(G.GAME.hands) do -- loop through all hands
+            -- if any other hand is higher than the currently played hand type (and is unlocked e.g. flush five)
+            -- do not retrigger 
+            if name ~= handPlayedName and type.played >= numPlayedOfCurrentHandType and type.visible then
+                isHighest = false
+            end
+        end
+
+        if isHighest then
+          return {
+            message = localize('k_mmc_committed'),
+            repetitions = self.ability.extra.retriggers,
+            card = self
+          }
+        end
+      end -- end context check
+    end -- end calculate  
+end -- end config check
+
 
   if config.blueMoonJoker then
       -- Create Joker,
