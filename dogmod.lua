@@ -1024,22 +1024,19 @@ function Back.apply_to_run(arg_56_0)
             -- Add whatever
             for i = #G.playing_cards, 1, -1 do
                 -- Remove non prime cards
-                if not is_rank(G.playing_cards[i], 7) then
-                  
-                  --G.playing_cards[i]:set_ability(G.P_CENTERS.m_lucky)
-                --if G.playing_cards[i]:get_id() > 7 then
+                if not (is_rank(G.playing_cards[i], 7) or is_rank(G.playing_cards[i], 11)) then
                   G.playing_cards[i]:start_dissolve(nil, true)
                 end
             end
-            add_joker("j_mmc_lucky7")
+          --  add_joker("j_mmc_lucky7")
             --add_joker("j_mmc_salary_man")
-            add_joker("j_mmc_fixed_odds")
-            add_joker("j_midas_mask")
-            add_joker("j_ticket")
+         --   add_joker("j_mmc_fixed_odds")
+         --   add_joker("j_midas_mask")
+         --   add_joker("j_ticket")
             --add_joker("j_mmc_committed")
            -- add_joker("j_hack", "negative", true, false)
             --add_joker("j_midas_mask", "negative", true, false)
-            G.GAME.starting_deck_size = 4
+            G.GAME.starting_deck_size = 8
             return true
         end
     }))
@@ -3725,23 +3722,25 @@ function SMODS.INIT.MikasModCollection()
       -- Calculate Lucky 7 joker
       SMODS.Jokers.j_mmc_lucky7.calculate = function(self, context)
         if context.before and context.cardarea == G.jokers then -- TODO: must know more about lifecycle
-          local scoredCards = {} -- store the cards that should be upgraded
-        
-          for _, scoringCard in ipairs(context.scoring_hand) do
-            if scoringCard:get_id() == 7 then -- if the card is a seven, save it for later
-              table.insert(scoredCards, scoringCard)
-            end
+          local sevens = {} -- store the cards that should be upgraded
+          for _, card in ipairs(context.scoring_hand) do
+              if card:get_id() == 7 and not card.debuff then 
+                  sevens[#sevens+1] = card
+                  card:set_ability(G.P_CENTERS.m_lucky, nil, true)
+                  G.E_MANAGER:add_event(Event({
+                      func = function()
+                          card:juice_up()
+                          return true
+                      end
+                  })) 
+              end
           end
-
-          if #scoredCards > 0 then -- do we have any scoring cards?
-            for _, toBecomeLucky in ipairs(scoredCards) do
-              toBecomeLucky:juice_up(0.5, 0.5) -- jiggle. What's the unit?
-              toBecomeLucky:set_ability(G.P_CENTERS.m_lucky) -- make it lucky
-            end
-            card_eval_status_text(self, "extra", nil, nil, nil, { -- pops after the hand is removed if in the above event
-              message = localize("k_mmc_lucky") -- "Lucky!"
-            })
-          end -- end length check    
+          if #sevens > 0 then 
+              return {
+                  message = localize("k_mmc_lucky"),
+                  card = self
+              }
+          end
         end -- end if context
     end -- end calculate  
 end -- end config check
@@ -3831,13 +3830,12 @@ if config.fixedOddsJoker then
 
     -- Calculate fixed odds
     SMODS.Jokers.j_mmc_fixed_odds.calculate = function(self, context)
-      if context.individual and context.cardarea == G.play then
-        G.GAME.probabilities.normal = 15
+      if context.before and context.cardarea == G.jokers then
         print("Hello fixed odds")
         local allAreLucky = true
 
         for _, scoringCard in ipairs(context.scoring_hand) do
-           print(scoringCard.ability.name)
+           print(scoringCard.debuffed)
            if scoringCard.ability.name ~= 'Lucky Card' then
               allAreLucky = false
            end
@@ -3851,13 +3849,14 @@ if config.fixedOddsJoker then
 
           for k, v in pairs(G.GAME.probabilities) do -- this is what oops all sixes does
             G.GAME.probabilities[k] = v*self.ability.extra.increaseOddsTimes
+            print(k, G.GAME.probabilities[k])
           end
           allAreLucky = false
         end -- end all are lucky
       elseif context.after and self.ability.extra.triggered then -- clean up after trigger to not inflate all probabilities forever
         for k, v in pairs(G.GAME.probabilities) do -- reset probabilities
-          G.GAME.probabilities[k] = v / self.ability.extra.increaseOddsTimes
-          print(G.GAME.probabilities[k])
+         G.GAME.probabilities[k] = v / self.ability.extra.increaseOddsTimes
+         print(k, G.GAME.probabilities[k])
         end
         self.ability.extra.triggered = false -- reset state
       end -- end if context 
