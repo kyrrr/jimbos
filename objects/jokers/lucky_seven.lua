@@ -3,9 +3,9 @@ SMODS.Joker({
 	atlas = "jokers",
 	pos = {x = 0, y = 0},
     loc_txt = {
-        name = 'Hello',
+        name = 'Lucky 7',
         text = {
-            "All played {C:attention}7s{}",
+            "All played {C:attention}#1#s{}",
             "become {C:attention}Lucky{} cards",
             "when scored"
         }
@@ -17,20 +17,20 @@ SMODS.Joker({
 	blueprint_compat = false,
 	eternal_compat = true,
 	perishable_compat = true,
-	config = {extra = {}},
+	config = {extra = { rankToTransform = 7 }},
 	loc_vars = function(self, info_queue, card)
-        return {vars = {}} 
+        return {vars = { self.config.extra.rankToTransform }} 
     end,
     calculate = function(self, card, context)
         if context.before and context.cardarea == G.jokers then 
         local sevens = {} -- store the cards that should be upgraded
-        for _, card in ipairs(context.scoring_hand) do
-            if card:get_id() == 7 and not card.debuff then 
-                sevens[#sevens+1] = card
-                card:set_ability(G.P_CENTERS.m_lucky, nil, true)
+        for _, scoringCard in ipairs(context.scoring_hand) do -- loop thru all scored cards
+            if scoringCard:get_id() == self.config.extra.rankToTransform and not scoringCard.debuff then -- is it a non-debuffed 7?
+                sevens[#sevens+1] = scoringCard -- save it
+                scoringCard:set_ability(G.P_CENTERS.m_lucky, nil, true) -- make it lucky. TOFIGUREOUT: what initial = nil does
                 G.E_MANAGER:add_event(Event({
                     func = function()
-                        card:juice_up()
+                        scoringCard:juice_up()
                         return true
                     end
                 })) 

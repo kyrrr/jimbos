@@ -11,6 +11,7 @@
 
 DogMod = SMODS.current_mod
 SMODS.load_file('objects/jokers_index.lua')()
+SMODS.load_file('objects/seals_index.lua')()
 
 
 --l--ocal load_table = {
