@@ -3,15 +3,16 @@ SMODS.Joker({
 	key = "committed_joker",
 	atlas = "jokers",
 	pos = {x = 0, y = 0},
-    loc_txt = {
-      name = "Committed Joker",
-      text = {
-          "Retriggers all scored cards",
-          "if played hand is your {C:attention}most played{} hand",
-        }
-    },
-	rarity = 3,
-	cost = 8,
+  loc_txt = {
+    name = "Committed Joker",
+    text = {
+        "Retriggers all scored cards #1# time(s)",
+        "if played hand is your",
+        "{C:attention}most played{} hand"
+      }
+  },
+	rarity = 2,
+	cost = 6,
   config = { extra = { retriggers = 1 }},
 	unlocked = true,
 	discovered = true,
@@ -19,14 +20,14 @@ SMODS.Joker({
 	eternal_compat = true,
 	perishable_compat = true,
 	loc_vars = function(self, info_queue, card)
-      return {vars = {}} 
+      return {vars = {self.config.extra.retriggers}} 
   end,
   calculate = function(self, card, context)
     if context.cardarea == G.play then
       local handPlayedName = context.scoring_name -- name of the currently played hand
       local numPlayedOfCurrentHandType = (G.GAME.hands[handPlayedName].played or 0) -- how many of the current hand have we played
       local currentPlayedHandTypeisMostPlayed = true -- assume the currently played hand is the highest
-      
+
     --print(inspect(G.GAME.hand_usage)) might be more efficient?
     --
       for name, type in pairs(G.GAME.hands) do -- loop through all hands
@@ -45,7 +46,7 @@ SMODS.Joker({
        -- card_eval_status_text(card, 'extra', nil, nil, nil, {message = 'Committed!'})
         return {
            message = 'Committed!',
-           repetitions = 1,
+           repetitions = self.config.extra.retriggers,
            card = card
         }
         --  

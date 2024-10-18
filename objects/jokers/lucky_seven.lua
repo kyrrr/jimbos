@@ -10,8 +10,8 @@ SMODS.Joker({
             "when scored"
         }
     },
-	rarity = 3,
-	cost = 8,
+	rarity = 2,
+	cost = 7,
 	unlocked = true,
 	discovered = true,
 	blueprint_compat = false,

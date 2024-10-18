@@ -11,8 +11,8 @@ SMODS.Joker({
         "({C:attention}#4#{} remaining)"
       }
     },
-	rarity = 3,
-	cost = 8,
+	rarity = 2,
+	cost = 6,
   ability = { extra = { payout = 100, raise = 20, start_req = 28, remaining_req = 1 }},
 	unlocked = true,
 	discovered = true,
