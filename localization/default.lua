@@ -1,9 +1,4 @@
 return {
-	["misc"] = {
-		['labels'] = {
-			dogmod_lucky = 'Lucky!',
-		}
-    },
     ["descriptions"] = {
 		["Joker"] = {
 			['j_dogmod_lucky_seven'] = {

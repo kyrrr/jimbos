@@ -48,7 +48,7 @@ SMODS.Joker({
       end -- end all are lucky
     elseif context.after and self.ability.extra.triggered then -- clean up after trigger to not inflate all probabilities forever
       for k, v in pairs(G.GAME.probabilities) do -- reset probabilities
-      -- something is fucked
+      -- something is fucked if theres another instance of this jimbo
       print("RESET PROBS")
        G.GAME.probabilities[k] = v / self.ability.extra.increaseOddsTimes
        print(k, " after is ", G.GAME.probabilities[k])
