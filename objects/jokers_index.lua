@@ -7,9 +7,9 @@ SMODS.Atlas({
 
 local joker_list = {
     'lucky_seven',
-    'salary_man',
-    'fixed_odds',
-    'committed_joker'
+   -- 'salary_man',
+   -- 'fixed_odds',
+   -- 'committed_joker'
 }
 
 for _, key in ipairs(joker_list) do

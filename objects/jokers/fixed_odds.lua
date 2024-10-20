@@ -14,7 +14,7 @@ SMODS.Joker({
 	cost = 6,
 	unlocked = true,
 	discovered = true,
-	blueprint_compat = true,
+	blueprint_compat = false,
 	eternal_compat = true,
 	perishable_compat = true,
   ability = { extra = { increaseOddsTimes = 2, triggered = false }},
@@ -22,7 +22,7 @@ SMODS.Joker({
     return {vars = {self.ability.extra.increaseOddsTimes}}
   end,
   calculate = function(self, card, context)
-    if context.before and context.cardarea == G.jokers then
+    if context.before and context.cardarea == G.jokers and not context.blueprint then
       print("Hello fixed odds")
       local allAreLucky = true
   
@@ -34,7 +34,6 @@ SMODS.Joker({
       end
   
       if allAreLucky then
-        print("All are")
         self.ability.extra.triggered = true
         card_eval_status_text(card, "extra", nil, nil, nil, {
           message = "More likely!"
@@ -42,8 +41,9 @@ SMODS.Joker({
   
         for k, v in pairs(G.GAME.probabilities) do -- this is what oops all sixes does
           G.GAME.probabilities[k] = v * self.ability.extra.increaseOddsTimes
-          print(k .. "is now" .. G.GAME.probabilities[k])
+          print(k .. " is now " .. G.GAME.probabilities[k])
         end
+
         allAreLucky = false 
       end -- end all are lucky
     elseif context.after and self.ability.extra.triggered then -- clean up after trigger to not inflate all probabilities forever
@@ -51,7 +51,7 @@ SMODS.Joker({
       -- something is fucked
       print("RESET PROBS")
        G.GAME.probabilities[k] = v / self.ability.extra.increaseOddsTimes
-       print(k, "=", G.GAME.probabilities[k])
+       print(k, " after is ", G.GAME.probabilities[k])
       end
       self.ability.extra.triggered = false -- reset state
     end -- end if context 

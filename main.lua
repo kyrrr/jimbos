@@ -5,13 +5,24 @@
 --- MOD_DESCRIPTION: Learn by stealing
 --- DISPLAY_NAME: DogMod
 --- PREFIX: dogmod
---- BADGE_COLOUR: FD5DA8
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
 DogMod = SMODS.current_mod
+
+JimboTiers = {}
+JimboTiers.upgradePaths = {}
+
+G.localization.descriptions.Joker.j_dogmod_lucky_seven = {
+    name = "Hello",
+    text = {
+        "Cruel world",
+    }
+}
+
 SMODS.load_file('objects/jokers_index.lua')()
 SMODS.load_file('objects/seals_index.lua')()
+SMODS.load_file('objects/spectrals_index.lua')()
 
 
 --l--ocal load_table = {
