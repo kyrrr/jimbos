@@ -2,15 +2,7 @@
 SMODS.Joker({
 	key = "committed_joker",
 	atlas = "jokers",
-	pos = {x = 0, y = 0},
-  loc_txt = {
-    name = "Committed Joker",
-    text = {
-        "Retriggers all scored cards #1# time(s)",
-        "if played hand is your",
-        "{C:attention}most played{} hand"
-      }
-  },
+	pos = {x = 3, y = 3},
 	rarity = 2,
 	cost = 6,
   config = { extra = { retriggers = 1 }},

@@ -3,7 +3,7 @@ SMODS.Spectral({
     config = {
       --mod_conv = sealId .. '_seal',
       --seal = { money = 1 },
-      --max_highlighted = 1,
+      max_highlighted = 1,
       dollars = 100
     }, 
     loc_txt = {
@@ -18,29 +18,46 @@ SMODS.Spectral({
     discovered = true, 
     atlas = "loteria",
     loc_vars = function(self, info_queue, card)
-      --info_queue[#info_queue + 1] = {
-       -- set = "Other",
-        --key = sealId .. '_seal',
-        --specific_vars = {self.config.seal.money},
-      --}
+
       return {vars = {100}}
     end,
-    can_use = function ()
-        return true
+    can_use = function (self, card)
+      for k, v in pairs(G.jokers.cards) do
+        print(inspect(v.ability))
+        --print(inspect(v.ability.extra))
+        if v.ability
+           and v.ability.set == 'Joker'
+           and type(v.ability.extra) == 'table'
+           and v.ability.extra.canRankUp 
+           and type(v.ability.extra.tier) == "number"
+           and type(v.ability.extra.maxTier) == "number"
+           and v.ability.extra.tier < v.ability.extra.maxTier
+        then 
+            return true
+        end
+      end
     end,
     use = function(self, card)
-        ease_dollars(card.ability.dollars)
-      --if G.FUNCS.is_versus_game() then
-        --[[for i = 1, card.ability.max_highlighted do
-          local highlighted = G.hand.highlighted[i]
-          if highlighted then
-            highlighted:set_seal(sealId)
-          else
-            break
-          end
-        end]]--
-        return true
-      --end
+      local jimbos = {}
+      for k, v in pairs(G.jokers.cards) do
+      --  print(inspect(v.ability.extra))
+        if v.ability.set == 'Joker' and v.ability.extra.canRankUp then 
+            table.insert(jimbos, v)
+        end
+      end
+
+      if #jimbos then
+        local randomEligibleJimbo = pseudorandom_element(jimbos,pseudoseed(self.key))
+        if randomEligibleJimbo then
+          randomEligibleJimbo:rank_up()
+          --randomEligibleJimbo.ability.extra.tier = randomEligibleJimbo.ability.extra.tier + 1
+          --card_eval_status_text(randomEligibleJimbo, "extra", nil, nil, nil, {
+          --  message = "Rank up!"
+          --})
+        end
+      end
+    
+      return true
     end,
     in_pool = function(self)
       return true

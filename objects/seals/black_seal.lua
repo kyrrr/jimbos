@@ -2,35 +2,39 @@ SMODS.Seal({
     name = "black_seal",
     key = "black_seal",
     badge_colour = HEX("000000"),
-	config = { type = 'destroy' },
+	config = { },
     loc_txt = {
-        -- Badge name (displayed on card description when seal is applied)
         label = 'Black Seal',
         name = 'Black Seal',
         text = {
             "Destroy this card",
             "after it is scored"
         }
-        -- Tooltip description
-    
     },
     loc_vars = function(self, info_queue)
-        return { vars = {self.config.mult, self.config.chips, self.config.money, self.config.x_mult, } }
+        return { vars = { } }
     end,
     atlas = "seals",
     pos = {x=0, y=0},
-
-    -- self - this seal prototype
-    -- card - card this seal is applied to
     calculate = function(self, card, context)
-        -- repetition_only context is used for red seal retriggers
-        if not context.repetition_only and context.cardarea == G.play then
-            return {
-                mult = self.config.mult,
-                chips = self.config.chips,
-                dollars = self.config.money,
-                x_mult = self.config.x_mult
-            }
+        local destroyed_cards = {}
+        if context.cardarea == G.play and not card.dogmod_blackseal_calculated then
+            destroyed_cards[#destroyed_cards+1] = card
+            --table.insert(destroyed_cards, card)
+            card.dogmod_blackseal_calculated = true
+        elseif not context.repetition and card.dogmod_blackseal_calculated then
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.2,
+                func = function()
+                        card:start_dissolve(nil, true)
+                        return true
+                    end
+                }))
+            delay(0.3)
+            for i = 1, #G.jokers.cards do 
+                G.jokers.cards[i]:calculate_joker({remove_playing_cards = true, removed = destroyed_cards})
+            end
         end
     end,
 })

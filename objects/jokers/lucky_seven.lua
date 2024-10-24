@@ -11,14 +11,14 @@ SMODS.Joker({
 	perishable_compat = true,
 	config = {
     extra = { 
+        canRankUp = true,
         rankToTransform = 7, 
-        tier = 2, 
+        tier = 1, 
         maxTier = 2,
-        txtTier1 = "Tier 1 text",
-        txtTier2 = "Tier 2 text",
     }},
 	loc_vars = function(self, info_queue, card)
-        return {vars = { "world" }} 
+        return { key =  "j_dogmod_lucky_seven_t" .. card.ability.extra.tier,
+        vars = { } }
     end,
     calculate = function(self, card, context)
         if context.game_over then
@@ -26,11 +26,11 @@ SMODS.Joker({
         elseif context.before and context.cardarea == G.jokers then 
             local sevens = {} -- store the cards that should be upgraded
             for _, scoringCard in ipairs(context.scoring_hand) do -- loop thru all scored cards
-                if scoringCard:get_id() == self.config.extra.rankToTransform and not scoringCard.debuff then -- is it a non-debuffed 7?
+                if scoringCard:get_id() == card.ability.extra.rankToTransform and not scoringCard.debuff then -- is it a non-debuffed 7?
                     sevens[#sevens+1] = scoringCard -- save it
                     scoringCard:set_ability(G.P_CENTERS.m_lucky, nil, true) -- make it lucky. TOFIGUREOUT: what initial = nil does
                     print(scoringCard.seal)
-                    if self.config.extra.tier > 1 and not scoringCard.seal then
+                    if card.ability.extra.tier > 1 and not scoringCard.seal then
                         scoringCard:set_seal("Gold", true)
                     end
                     print(scoringCard.seal)
@@ -44,7 +44,7 @@ SMODS.Joker({
             end
             if #sevens > 0 then 
                 return {
-                    message = "Lucky!!!!",
+                    message = localize("dogmod_lucky"),
                     card = self,
                 }
             end
