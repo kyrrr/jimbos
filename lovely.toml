@@ -5,7 +5,7 @@ priority = 1
 
 ### Update vanilla jimbos to be compatible with tiers
 
-## Tiered Baron
+## BEGIN Baron
 [[patches]]
 [patches.pattern]
 target = 'game.lua'
@@ -55,3 +55,23 @@ if self.ability.name == 'Baron' and
     end
 end
 """
+
+### END Baron
+
+
+### BEGIN Bloodstone
+
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+match_indent = true
+pattern = """j_bloodstone=       {order = 117,  unlocked = false, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 2, cost = 7, name = "Bloodstone", pos = {x=0,y=8}, set = "Joker", effect = "", config = {extra = {odds = 2, Xmult = 1.5}}, unlock_condition = {type = 'modify_deck', extra = {count = 30, suit = 'Hearts'}}},"""
+position = 'at'
+payload = """
+-- dogmod tiered bloodstone
+j_bloodstone=       {order = 117,  unlocked = false, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 2, cost = 7, name = "Bloodstone", pos = {x=0,y=8}, set = "Joker", effect = "", config = {extra = {canRankUp = true, tier = 1, maxTier = 2, odds = 2, Xmult = 1.5}}, unlock_condition = {type = 'modify_deck', extra = {count = 30, suit = 'Hearts'}}},"""
+
+### Don't think we need to patch the scoring thing cus we just set the odds to be 1 in 1 and change the text
+
+
+### END Bloodstone

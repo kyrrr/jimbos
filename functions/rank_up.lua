@@ -21,28 +21,11 @@ function Card:rank_up()
 		self.ability.extra.tier = self.ability.extra.tier + 1
 
 		-- TOOD: not like this
-		--print(inspect(self))
-		--print(inspect(self.config))
-		--print(self.config.h_popup)
-		--print(self.config.h_popup_config)
-		--print(inspect(self.ability))
-		--print(inspect(self.children.center))
-		--print(inspect(self.children.center.scale))
-		print("------")
-		print(inspect(self.children))
 
 		if type(self.ability.extra.atlasPosXtier2) == "number" and type(self.ability.extra.atlasPosYtier2) == "number" then
 			self.children.center.sprite_pos = {x = self.ability.extra.atlasPosXtier2, y = self.ability.extra.atlasPosYtier2}
 		end
-
-		--[[ print("PARAMS")
-		print(inspect(self.params))
-		print("CONFIG")
-		print(inspect(self.config))
-		print("ABILITY")
-		print(inspect(self.ability)) ]]
 	
-
 		-- TODO: this should be handled in the Jimbo
 		if self.ability.name == 'j_dogmod_salary_man' then
 			self.ability.extra.payout = 150
@@ -52,7 +35,9 @@ function Card:rank_up()
 		elseif self.ability.name == 'j_dogmod_committed_joker' then -- handled in calculate
 		
 		elseif self.ability.name == 'Baron' then
-			self.ability.extra.multmult = 2 -- se lovely.toml
+			self.ability.extra.multmult = 2 -- see lovely.toml
+		elseif self.ability.name == 'Bloodstone' then
+			self.ability.extra.odds = 1 -- see lovely.toml
 		end
 
 		G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.3, blocking = false, func = function()

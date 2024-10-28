@@ -13,15 +13,36 @@ return {
 			['j_dogmod_baron_t1'] = {
 				["name"] = "Baron",
 				["text"] = {
-					"TIER 1 DEFAULT {C:attention}#1#"
+					"Each {C:attention}King{}",
+                    "held in hand",
+                    "gives {X:mult,C:white} X#1# {} Mult",
 				}
 			},
 			['j_dogmod_baron_t2'] = {
 				["name"] = "Baron+",
 				["text"] = {
-					"TIER 2 {C:attention}#1#"
+					"Each {C:attention}King{}",
+                    "held in hand",
+                    "gives {X:mult,C:white} X#1# {} Mult",
 				}
 			},
+			['j_dogmod_bloodstone_t1'] = {
+				["name"] = "Bloodstone",
+				["text"] = {
+                    "{C:green}#1# in #2#{} chance for",
+                    "played cards with",
+                    "{C:hearts}Heart{} suit to give",
+                    "{X:mult,C:white} X#3# {} Mult when scored", 
+                },
+			},
+			['j_dogmod_bloodstone_t2'] = {
+				["name"] = "Bloodstone+",
+				["text"] = {
+                    "Played cards with {C:hearts}Heart{} suit give",
+                    "{X:mult,C:white} X#3# {} Mult when scored", 
+                },
+			},
+			-- custom jimbos
 			['j_dogmod_lucky_seven_t1'] = {
 				["name"] = "Lucky 7",
 				["text"] = {
