@@ -31,23 +31,28 @@ function Card:rank_up()
 		print("------")
 		print(inspect(self.children))
 
-		self.children.center.sprite_pos = {x = self.ability.extra.atlasPosXtier2, y = self.ability.extra.atlasPosYtier2}
+		if type(self.ability.extra.atlasPosXtier2) == "number" and type(self.ability.extra.atlasPosYtier2) == "number" then
+			self.children.center.sprite_pos = {x = self.ability.extra.atlasPosXtier2, y = self.ability.extra.atlasPosYtier2}
+		end
 
-		print("PARAMS")
+		--[[ print("PARAMS")
 		print(inspect(self.params))
 		print("CONFIG")
 		print(inspect(self.config))
 		print("ABILITY")
-		print(inspect(self.ability))
+		print(inspect(self.ability)) ]]
 	
 
 		-- TODO: this should be handled in the Jimbo
 		if self.ability.name == 'j_dogmod_salary_man' then
 			self.ability.extra.payout = 150
 			self.ability.extra.raise = 25
-		elseif self.params.name == 'j_dogmod_lucky_seven' then
+		elseif self.params.name == 'j_dogmod_lucky_seven' then -- handled in calculate
 
-		elseif self.ability.name == 'j_dogmod_committed_joker' then
+		elseif self.ability.name == 'j_dogmod_committed_joker' then -- handled in calculate
+		
+		elseif self.ability.name == 'Baron' then
+			self.ability.extra.multmult = 2 -- se lovely.toml
 		end
 
 		G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.3, blocking = false, func = function()

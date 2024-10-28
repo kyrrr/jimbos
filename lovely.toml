@@ -1,0 +1,57 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 1
+
+### Update vanilla jimbos to be compatible with tiers
+
+## Tiered Baron
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+match_indent = true
+pattern = 'j_baron=            {order = 72,  unlocked = true, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 3, cost = 8, name = "Baron",set = "Joker", config = {extra = 1.5}, pos = {x=6,y=12}},'
+position = 'at'
+payload = """
+-- dogmod tiered baron
+j_baron=            {order = 72,  unlocked = true, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 3, cost = 8, name = "Baron",set = "Joker", config = {extra = {multmult = 1.5, canRankUp = true, tier = 1, maxTier = 2}}, pos = {x=6,y=12}},"""
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+match_indent = true
+pattern = """
+if self.ability.name == 'Baron' and
+    context.other_card:get_id() == 13 then
+    if context.other_card.debuff then
+        return {
+            message = localize('k_debuffed'),
+            colour = G.C.RED,
+            card = self,
+        }
+    else
+        return {
+            x_mult = self.ability.extra,
+            card = self
+        }
+    end
+end
+"""
+position = 'at'
+payload = """
+if self.ability.name == 'Baron' and
+    context.other_card:get_id() == 13 then
+    if context.other_card.debuff then
+        return {
+            message = localize('k_debuffed'),
+            colour = G.C.RED,
+            card = self,
+        }
+    else
+        return {
+            x_mult = self.ability.extra.multmult,
+            card = self
+        }
+    end
+end
+"""

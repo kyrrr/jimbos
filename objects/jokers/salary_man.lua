@@ -21,7 +21,7 @@ SMODS.Joker({
       payout = 100, 
       raise = 20, 
       start_req = 28, 
-      remaining_req = 1,
+      remaining_req = 28,
       txtTier1 = "j_dogmod_salary_man_t1",
       txtTier2 = "j_dogmod_salary_man_t2",
       atlasPosXtier2 = 1,

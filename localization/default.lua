@@ -5,14 +5,23 @@ return {
 			["dogmod_payday"] = "Payday!",
 			["dogmod_raise"] = "Raise!",
 			["dogmod_rank_up"] = "Rank up!",
-			["dogmod_lucky_seven_t1"] = "Lucky 7 Tier 1",
-			["dogmod_lucky_seven_t2"] = "Lucky 7 Tier 2",
-			["dogmod_salary_man_t1"] = "Salary Man Tier 1",
-			["dogmod_salary_man_t2"] = "Salary Man Tier 2",
 		}
 	},
     ["descriptions"] = {
 		["Joker"] = {
+			-- tiered vanilla jimbos
+			['j_dogmod_baron_t1'] = {
+				["name"] = "Baron",
+				["text"] = {
+					"TIER 1 DEFAULT {C:attention}#1#"
+				}
+			},
+			['j_dogmod_baron_t2'] = {
+				["name"] = "Baron+",
+				["text"] = {
+					"TIER 2 {C:attention}#1#"
+				}
+			},
 			['j_dogmod_lucky_seven_t1'] = {
 				["name"] = "Lucky 7",
 				["text"] = {

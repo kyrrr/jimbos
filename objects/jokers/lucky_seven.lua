@@ -49,7 +49,7 @@ SMODS.Joker({
                 }
             end
         elseif context.individual and context.cardarea == G.play then
-            print("hello")
+          --  print("hello")
         end -- end if context
     end -- end calculate 
 })

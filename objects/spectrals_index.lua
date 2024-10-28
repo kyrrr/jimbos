@@ -7,6 +7,7 @@ SMODS.Atlas({
 
 local spectrals_list = {
     'chrysalis',
+    'banishment'
 }
 
 for _, key in ipairs(spectrals_list) do

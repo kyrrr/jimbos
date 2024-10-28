@@ -5,12 +5,22 @@ SMODS.Atlas({
     py = '95'
 })
 
-local joker_list = {
+local custom_joker_list = {
     'lucky_seven',
     'salary_man',
-    'committed_joker'
+    'committed_joker',
 }
 
-for _, key in ipairs(joker_list) do
+
+local upgraded_vanillas = {
+    'baron'
+}
+
+
+for _, key in ipairs(custom_joker_list) do
     SMODS.load_file('objects/jokers/'..key..'.lua')()
+end
+
+for _, key in ipairs(upgraded_vanillas) do
+    SMODS.load_file('objects/jokers/tiered_vanillas/'..key..'.lua')()
 end

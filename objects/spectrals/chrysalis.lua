@@ -18,13 +18,10 @@ SMODS.Spectral({
     discovered = true, 
     atlas = "loteria",
     loc_vars = function(self, info_queue, card)
-
-      return {vars = {100}}
+      return {vars = {}}
     end,
     can_use = function (self, card)
       for k, v in pairs(G.jokers.cards) do
-        print(inspect(v.ability))
-        --print(inspect(v.ability.extra))
         if v.ability
            and v.ability.set == 'Joker'
            and type(v.ability.extra) == 'table'
@@ -40,7 +37,6 @@ SMODS.Spectral({
     use = function(self, card)
       local jimbos = {}
       for k, v in pairs(G.jokers.cards) do
-      --  print(inspect(v.ability.extra))
         if v.ability.set == 'Joker' and v.ability.extra.canRankUp then 
             table.insert(jimbos, v)
         end
@@ -50,10 +46,6 @@ SMODS.Spectral({
         local randomEligibleJimbo = pseudorandom_element(jimbos,pseudoseed(self.key))
         if randomEligibleJimbo then
           randomEligibleJimbo:rank_up()
-          --randomEligibleJimbo.ability.extra.tier = randomEligibleJimbo.ability.extra.tier + 1
-          --card_eval_status_text(randomEligibleJimbo, "extra", nil, nil, nil, {
-          --  message = "Rank up!"
-          --})
         end
       end
     
