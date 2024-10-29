@@ -9,6 +9,7 @@ local custom_joker_list = {
     'lucky_seven',
     'salary_man',
     'committed_joker',
+    'fixed_odds',
 }
 
 

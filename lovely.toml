@@ -3,7 +3,13 @@ version = "1.0.0"
 dump_lua = true
 priority = 1
 
+
+### BEGIN Tiered Vanillas
 ### Update vanilla jimbos to be compatible with tiers
+### Tier 1 = vanilla
+### Effects:
+### Baron: T2 = 2x mult for each king in hand
+### Bloodstone: T2 = 100% chance of triggering
 
 ## BEGIN Baron
 [[patches]]
@@ -75,3 +81,107 @@ j_bloodstone=       {order = 117,  unlocked = false, discovered = false, bluepri
 
 
 ### END Bloodstone
+
+### END Tiered Vanillas
+
+
+### BEGIN Voucher Joker effect
+
+#[[patches]]
+#[patches.pattern]
+#target = 'card.lua'
+#match_indent = true
+#pattern = """
+#if self.ability.name == 'Stuntman' then
+#    G.hand:change_size(-self.ability.extra.h_size)
+#end
+#"""
+#position = 'after'
+#payload = """
+#if type(self.ability.extra) == 'table' and type(self.ability.extra.voucherSize) == 'number' then
+#    G.shop_vouchers.config.card_limit = G.shop_vouchers.config.card_limit + self.ability.extra.voucherSize
+#end
+#"""
+### END Voucher Joker effect
+
+
+## BEGIN lucky effects patch
+# patch lucky effects to account for Fixed Odds joker
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+match_indent = true
+pattern = """
+function Card:get_chip_mult()
+    if self.debuff then return 0 end
+    if self.ability.set == 'Joker' then return 0 end
+    if self.ability.effect == "Lucky Card" then 
+        if pseudorandom('lucky_mult') < G.GAME.probabilities.normal/5 then
+            self.lucky_trigger = true
+            return self.ability.mult
+        else
+            return 0
+        end
+    else  
+        return self.ability.mult
+    end
+end
+"""
+position = 'at'
+payload = """
+function Card:get_chip_mult()
+    if self.debuff then return 0 end
+    if self.ability.set == 'Joker' then return 0 end
+    if self.ability.effect == "Lucky Card" then
+        local prob = 5
+        if next(find_joker('j_dogmod_fixed_odds')) then
+            prob = prob / (#find_joker('j_dogmod_fixed_odds') * 2)
+        end 
+        if pseudorandom('lucky_mult') < G.GAME.probabilities.normal/prob then
+            self.lucky_trigger = true
+            return self.ability.mult
+        else
+            return 0
+        end
+    else  
+        return self.ability.mult
+    end
+end
+"""
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+match_indent = true
+pattern = """
+if self.ability.p_dollars > 0 then
+    if self.ability.effect == "Lucky Card" then 
+        if pseudorandom('lucky_money') < G.GAME.probabilities.normal/15 then
+            self.lucky_trigger = true
+            ret = ret +  self.ability.p_dollars
+        end
+    else 
+        ret = ret + self.ability.p_dollars
+    end
+end
+"""
+position = 'at'
+payload = """
+if self.ability.p_dollars > 0 then
+    if self.ability.effect == "Lucky Card" then
+        local prob = 15
+        if next(find_joker('j_dogmod_fixed_odds')) then
+            prob = prob / (#find_joker('j_dogmod_fixed_odds') * 2)
+        end 
+        print("probabilities", prob)
+        if pseudorandom('lucky_money') < G.GAME.probabilities.normal/prob then
+            self.lucky_trigger = true
+            ret = ret +  self.ability.p_dollars
+        end
+    else 
+        ret = ret + self.ability.p_dollars
+    end
+end
+"""
+
+### END lucky effects patch

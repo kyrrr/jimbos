@@ -5,7 +5,7 @@ function Card:rank_up()
     local area = self.area
     G.CONTROLLER:save_cardarea_focus('jokers')
 
-	G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.2, func = function()
+	G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.2, func = function()
 		play_sound('whoosh1')
 		self:juice_up(0.3, 0.4)
 		return true
@@ -19,21 +19,23 @@ function Card:rank_up()
 		self:juice_up(0.3, 0.5)
 
 		self.ability.extra.tier = self.ability.extra.tier + 1
+		self.sell_cost = self.sell_cost + 2
 
+		print(inspect(self))
 		-- TOOD: not like this
 
 		if type(self.ability.extra.atlasPosXtier2) == "number" and type(self.ability.extra.atlasPosYtier2) == "number" then
 			self.children.center.sprite_pos = {x = self.ability.extra.atlasPosXtier2, y = self.ability.extra.atlasPosYtier2}
+			-- will this help with a copy using the same sprite pos?
+			self.pos = {x = self.ability.extra.atlasPosXtier2, y = self.ability.extra.atlasPosYtier2}
 		end
-	
+
 		-- TODO: this should be handled in the Jimbo
 		if self.ability.name == 'j_dogmod_salary_man' then
 			self.ability.extra.payout = 150
 			self.ability.extra.raise = 25
-		elseif self.params.name == 'j_dogmod_lucky_seven' then -- handled in calculate
-
-		elseif self.ability.name == 'j_dogmod_committed_joker' then -- handled in calculate
-		
+		--elseif self.params.name == 'j_dogmod_lucky_seven' then -- handled in calculate
+		--elseif self.ability.name == 'j_dogmod_committed_joker' then -- handled in calculate
 		elseif self.ability.name == 'Baron' then
 			self.ability.extra.multmult = 2 -- see lovely.toml
 		elseif self.ability.name == 'Bloodstone' then
@@ -47,7 +49,7 @@ function Card:rank_up()
 
 		delay(0.1)
 
-		G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.3, blocking = false,
+		G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.3, blocking = false,
 		func = function()
 			G.E_MANAGER:add_event(Event({trigger = 'immediate',
 			func = function()

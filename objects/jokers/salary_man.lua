@@ -2,19 +2,10 @@ SMODS.Joker({
 	key = "salary_man",
 	atlas = "jokers",
 	pos = {x = 2, y = 2},
-  --[[loc_txt = {
-    name = "Salary Man",
-    text = {
-      "Gain {C:attention}$#1#{} after",
-      "{C:attention}#2#{} hands played.",
-      "Increases by {C:attention}$#3#{} every payout.",
-      "({C:attention}#4#{} remaining)"
-    }
-  },]]--
 	rarity = 2,
 	cost = 6,
   config = { 
-    extra = { 
+    extra = { -- see rank_up.lua for how these are modified
       canRankUp = true,
       tier = 1,
       maxTier = 2,
@@ -22,8 +13,7 @@ SMODS.Joker({
       raise = 20, 
       start_req = 28, 
       remaining_req = 28,
-      txtTier1 = "j_dogmod_salary_man_t1",
-      txtTier2 = "j_dogmod_salary_man_t2",
+      voucherSize = 2,
       atlasPosXtier2 = 1,
       atlasPosYtier2 = 1,
     }},

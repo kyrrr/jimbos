@@ -17,8 +17,7 @@ SMODS.Joker({
         maxTier = 2,
     }},
 	loc_vars = function(self, info_queue, card)
-        return { key =  "j_dogmod_lucky_seven_t" .. card.ability.extra.tier,
-        vars = { } }
+        return { key =  "j_dogmod_lucky_seven_t" .. card.ability.extra.tier, vars = { } }
     end,
     calculate = function(self, card, context)
         if context.game_over then
