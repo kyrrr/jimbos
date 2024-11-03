@@ -10,14 +10,18 @@ priority = 1
 ### Effects:
 ### Baron: T2 = 2x mult for each king in hand
 ### Bloodstone: T2 = 100% chance of triggering
+### Spare trousers: T2 = 2x mult if contains two pair
+
+### not implemented:
+### ancient jimbo: only uses suits in deck
 
 ## BEGIN Baron
 [[patches]]
 [patches.pattern]
 target = 'game.lua'
 match_indent = true
-pattern = 'j_baron=            {order = 72,  unlocked = true, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 3, cost = 8, name = "Baron",set = "Joker", config = {extra = 1.5}, pos = {x=6,y=12}},'
 position = 'at'
+pattern = 'j_baron=            {order = 72,  unlocked = true, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 3, cost = 8, name = "Baron",set = "Joker", config = {extra = 1.5}, pos = {x=6,y=12}},'
 payload = """
 -- dogmod tiered baron
 j_baron=            {order = 72,  unlocked = true, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 3, cost = 8, name = "Baron",set = "Joker", config = {extra = {multmult = 1.5, canRankUp = true, tier = 1, maxTier = 2}}, pos = {x=6,y=12}},"""
@@ -26,6 +30,7 @@ j_baron=            {order = 72,  unlocked = true, discovered = false, blueprint
 [patches.pattern]
 target = 'card.lua'
 match_indent = true
+position = 'at'
 pattern = """
 if self.ability.name == 'Baron' and
     context.other_card:get_id() == 13 then
@@ -43,7 +48,6 @@ if self.ability.name == 'Baron' and
     end
 end
 """
-position = 'at'
 payload = """
 if self.ability.name == 'Baron' and
     context.other_card:get_id() == 13 then
@@ -71,8 +75,8 @@ end
 [patches.pattern]
 target = 'game.lua'
 match_indent = true
-pattern = """j_bloodstone=       {order = 117,  unlocked = false, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 2, cost = 7, name = "Bloodstone", pos = {x=0,y=8}, set = "Joker", effect = "", config = {extra = {odds = 2, Xmult = 1.5}}, unlock_condition = {type = 'modify_deck', extra = {count = 30, suit = 'Hearts'}}},"""
 position = 'at'
+pattern = """j_bloodstone=       {order = 117,  unlocked = false, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 2, cost = 7, name = "Bloodstone", pos = {x=0,y=8}, set = "Joker", effect = "", config = {extra = {odds = 2, Xmult = 1.5}}, unlock_condition = {type = 'modify_deck', extra = {count = 30, suit = 'Hearts'}}},"""
 payload = """
 -- dogmod tiered bloodstone
 j_bloodstone=       {order = 117,  unlocked = false, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 2, cost = 7, name = "Bloodstone", pos = {x=0,y=8}, set = "Joker", effect = "", config = {extra = {canRankUp = true, tier = 1, maxTier = 2, odds = 2, Xmult = 1.5}}, unlock_condition = {type = 'modify_deck', extra = {count = 30, suit = 'Hearts'}}},"""
@@ -81,6 +85,81 @@ j_bloodstone=       {order = 117,  unlocked = false, discovered = false, bluepri
 
 
 ### END Bloodstone
+
+
+### BEGIN Spare trousers
+### TODO must be better at naming things across jimbos
+### baron is multmult, but thats when in hand
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+match_indent = true
+position = 'at'
+pattern = """j_trousers=         {order = 98,   unlocked = true, discovered = false, blueprint_compat = true, perishable_compat = false, eternal_compat = true, rarity = 2, cost = 6, name = "Spare Trousers",set = "Joker", config = {extra = 2}, pos = {x=4,y=15}},"""
+payload = """
+-- dogmod tiered trousers
+-- mult is created on first upgrade?
+j_trousers=         {order = 98,   unlocked = true, discovered = false, blueprint_compat = true, perishable_compat = false, eternal_compat = true, rarity = 2, cost = 6, name = "Spare Trousers",set = "Joker", config = {extra = {canRankUp = true, tier = 1, maxTier = 2, mult = 0, extra = 2, x_mult = 2}}, pos = {x=4,y=15}},"""
+
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+match_indent = true
+position = 'at'
+pattern = """
+if self.ability.name == 'Spare Trousers' and self.ability.mult > 0 then
+    return {
+        message = localize{type='variable',key='a_mult',vars={self.ability.mult}},
+        mult_mod = self.ability.mult
+    }
+end
+"""
+payload = """
+if self.ability.name == 'Spare Trousers' and (self.ability.extra.mult > 0 or self.ability.extra.tier > 1) then
+    if self.ability.extra.tier > 1 then
+    return {
+            message = localize{type='variable', key='a_mult',vars={self.ability.extra.mult * self.ability.extra.x_mult}},
+            mult_mod = self.ability.extra.mult * self.ability.extra.x_mult,
+        }
+    else
+        return {
+            message = localize{type='variable',key='a_mult',vars={self.ability.extra.mult}},
+            mult_mod = self.ability.extra.mult
+        }
+    end
+end
+"""
+
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+match_indent = true
+position = 'at'
+pattern = """
+if self.ability.name == 'Spare Trousers' and (next(context.poker_hands['Two Pair']) or next(context.poker_hands['Full House'])) and not context.blueprint then
+    self.ability.mult = self.ability.mult + self.ability.extra
+    return {
+        message = localize('k_upgrade_ex'),
+        colour = G.C.RED,
+        card = self
+    }
+end
+"""
+payload = """
+if self.ability.name == 'Spare Trousers' and (next(context.poker_hands['Two Pair']) or next(context.poker_hands['Full House'])) and not context.blueprint then
+    self.ability.extra.mult = self.ability.extra.mult + self.ability.extra.extra
+    return {
+        message = localize('k_upgrade_ex'),
+        colour = G.C.RED,
+        card = self
+    }
+end
+"""
+
+### END Spare trousers
+
+
 
 ### END Tiered Vanillas
 
@@ -134,9 +213,11 @@ function Card:get_chip_mult()
     if self.ability.set == 'Joker' then return 0 end
     if self.ability.effect == "Lucky Card" then
         local prob = 5
-        if next(find_joker('j_dogmod_fixed_odds')) then
-            prob = prob / (#find_joker('j_dogmod_fixed_odds') * 2)
+        local numImprovements = #find_joker('j_dogmod_fixed_odds')
+        if numImprovements > 0 then
+            prob = prob / (numImprovements * 2) -- 2 = twice as likely
         end 
+        print("mult probability 1 in ", prob)
         if pseudorandom('lucky_mult') < G.GAME.probabilities.normal/prob then
             self.lucky_trigger = true
             return self.ability.mult
@@ -170,10 +251,11 @@ payload = """
 if self.ability.p_dollars > 0 then
     if self.ability.effect == "Lucky Card" then
         local prob = 15
-        if next(find_joker('j_dogmod_fixed_odds')) then
-            prob = prob / (#find_joker('j_dogmod_fixed_odds') * 2)
+        local numImprovements = #find_joker('j_dogmod_fixed_odds')
+        if numImprovements > 0 then
+            prob = prob / (numImprovements * 2) -- 2 = twice as likely
         end 
-        print("probabilities", prob)
+        print("money probability 1 in ", prob)
         if pseudorandom('lucky_money') < G.GAME.probabilities.normal/prob then
             self.lucky_trigger = true
             ret = ret +  self.ability.p_dollars

@@ -42,6 +42,25 @@ return {
                     "{X:mult,C:white} X#3# {} Mult when scored", 
                 },
 			},
+			['j_dogmod_trousers_t1'] = {
+				["name"] = "Spare Trousers",
+				["text"] = {
+                   "This Joker gains {C:mult}+#1#{} Mult",
+                    "if played hand contains",
+                    "a {C:attention}#2#",
+                    "{C:inactive}(Currently {C:red}+#3#{C:inactive} Mult)"
+                },
+			},
+			['j_dogmod_trousers_t2'] = {
+				["name"] = "Spare Trousers+",
+				["text"] = {
+                    "This Joker gains {C:mult}+#1#{} Mult",
+                    "if played hand contains",
+                    "a {C:attention}#2#{}. Mult is {C:attention}doubled{}",
+					"when hand is scored",
+                    "{C:inactive}(Currently {C:red}+#3#{C:inactive} Mult)"
+                },
+			},
 			-- custom jimbos
 			['j_dogmod_lucky_seven_t1'] = {
 				["name"] = "Lucky 7",
@@ -87,6 +106,14 @@ return {
       				"({C:attention}#4#{} remaining)"
 				}
 			},
+			["j_dogmod_fixed_odds_t1"] = {
+				["name"] = "Charm",
+				["text"] = {
+					"If all scored cards",
+      				"are {C:attention}Lucky{} cards,",
+      				"double the chance of each triggering",
+				}
+			}
 		},
     }
 }

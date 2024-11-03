@@ -15,7 +15,8 @@ local custom_joker_list = {
 
 local upgraded_vanillas = { -- see lovely.toml for how these are patched. these only change the descriptions
     'baron',
-    'bloodstone'
+    'bloodstone',
+    'spare_trousers'
 }
 
 
